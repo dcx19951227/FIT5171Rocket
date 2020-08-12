@@ -48,7 +48,7 @@ public class Rocket extends Entity {
     }
 
     public void setCountry(String country) {
-        notBlank(country,"country cannot be null or empty");
+        notBlank(name,"country cannot be null or empty");
         this.country = country;
     }
 
@@ -77,7 +77,6 @@ public class Rocket extends Entity {
     }
 
     public void setMassToLEO(String massToLEO) {
-        notBlank(massToLEO,"massToLEO cannot be null or empty");
         this.massToLEO = massToLEO;
     }
 

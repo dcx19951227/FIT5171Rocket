@@ -8,11 +8,9 @@ import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 
 //import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 public class RocketMiner {
     private static Logger logger = LoggerFactory.getLogger(RocketMiner.class);
@@ -31,8 +29,62 @@ public class RocketMiner {
      * @return the list of k most active rockets.
      */
     public List<Rocket> mostLaunchedRockets(int k) {
-        return Collections.emptyList();
+
+        logger.info("find the " + k + "most active rockets");
+        List<Rocket> topkList;
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        Map<Rocket, Integer> launchMap = frequencyOfListElements((List) launches);
+
+        Map<Rocket, Integer> sortedMap = new LinkedHashMap<Rocket, Integer>();
+        List<Map.Entry<Rocket, Integer>> entryList = new ArrayList<Map.Entry<Rocket, Integer>>(launchMap.entrySet());
+        Collections.sort(entryList, new MapValueComparator());
+        Iterator<Map.Entry<Rocket, Integer>> iter = entryList.iterator();
+        Map.Entry<Rocket, Integer> tmpEntry = null;
+        while (iter.hasNext()) {
+            tmpEntry = iter.next();
+            sortedMap.put(tmpEntry.getKey(), tmpEntry.getValue());
+        }
+        List<Rocket> RocketList = (List<Rocket>) sortedMap.keySet();
+        topkList =RocketList.subList(0,k);
+
+//        Comparator<Launch> launchDateComparator = (a, b) -> -a.getLaunchDate().compareTo(b.getLaunchDate());
+//        return launches.stream().sorted(launchDateComparator).limit(k).collect(Collectors.toList());
+
+
+        return topkList;
     }
+
+    /**
+     * java统计List集合中每个元素出现的次数
+     */
+    public static Map<String, Integer> frequencyOfListElements(List<String> items) {
+        if (items == null || items.size() == 0) return null;
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        for (String temp : items) {
+            Integer count = map.get(temp);
+            map.put(temp, (count == null) ? 1 : count + 1);
+        }
+        return map;
+    }
+
+    public static Map<String, Integer> sortMapByValue(Map<String, Integer> oriMap) {
+        if (oriMap == null || oriMap.isEmpty()) {
+            return null;
+        }
+
+        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+        List<Map.Entry<String, Integer>> entryList = new ArrayList<Map.Entry<String, Integer>>(oriMap.entrySet());
+        Collections.sort(entryList, (Comparator<? super Map.Entry<String, Integer>>) new MapValueComparator());
+        Iterator<Map.Entry<String, Integer>> iter = entryList.iterator();
+        Map.Entry<String, Integer> tmpEntry = null;
+        while (iter.hasNext()) {
+            tmpEntry = iter.next();
+            sortedMap.put(tmpEntry.getKey(), tmpEntry.getValue());
+        }
+        return sortedMap;
+
+    }
+
 
     /**
      * TODO: to be implemented & tested!
@@ -69,7 +121,9 @@ public class RocketMiner {
      * @param orbit the orbit
      * @return the country who sends the most payload to the orbit
      */
-    public String dominantCountry(String orbit) { return null;}
+    public String dominantCountry(String orbit) {
+        return null;
+    }
 
     /**
      * TODO: to be implemented & tested!
@@ -89,11 +143,19 @@ public class RocketMiner {
      * Returns a list of launch service provider that has the top-k highest
      * sales revenue in a year.
      *
-     * @param k the number of launch service provider.
+     * @param k    the number of launch service provider.
      * @param year the year in request
      * @return the list of k launch service providers who has the highest sales revenue.
      */
     public List<LaunchServiceProvider> highestRevenueLaunchServiceProviders(int k, int year) {
         return Collections.emptyList();
+    }
+}
+
+
+class MapValueComparator implements Comparator<Map.Entry<Rocket, Integer>> {
+    @Override
+    public int compare(Map.Entry<String, String> me1, Map.Entry<String, String> me2) {
+        return me1.getValue().compareTo(me2.getValue());
     }
 }
