@@ -57,12 +57,12 @@ public class RocketMiner {
     /**
      * java统计List集合中每个元素出现的次数
      */
-    public static Map<String, Integer> frequencyOfListElements(List<String> items) {
+    public static Map<Rocket, Integer> frequencyOfListElements(List<Launch> items) {
         if (items == null || items.size() == 0) return null;
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        for (String temp : items) {
+        Map<Rocket, Integer> map = new HashMap<Rocket, Integer>();
+        for (Launch temp : items) {
             Integer count = map.get(temp);
-            map.put(temp, (count == null) ? 1 : count + 1);
+            map.put(temp.getLaunchVehicle(), (count == null) ? 1 : count + 1);
         }
         return map;
     }
