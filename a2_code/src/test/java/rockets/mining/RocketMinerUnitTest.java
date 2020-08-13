@@ -79,4 +79,35 @@ public class RocketMinerUnitTest {
         assertEquals(k, loadedLaunches.size());
         assertEquals(sortedLaunches.subList(0, k), loadedLaunches);
     }
+    
+    
+    
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
+    public void shouldReturnTopMostActivateLaunches(int k) {
+        when(dao.loadAll(Launch.class)).thenReturn(launches);
+
+        List<Rocket> RocketList = new ArrayList<>();
+
+        for(Launch launch :launches){
+            RocketList.add(launch.getLaunchVehicle());
+        }
+        List<Rocket> topkRocketTest= new ArrayList<Rocket>();
+
+        Map<Rocket, Integer> RocketMap =   miner.frequencyOfListElements(RocketList);
+
+        Map<Rocket, Integer> sortedRocketMap = RocketMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+        List<Rocket> sortedRocketList = new ArrayList<Rocket> ();
+        sortedRocketList.addAll(sortedRocketMap.keySet());
+        topkRocketTest= sortedRocketList.subList(0,k);
+
+        List<Rocket> topkActiveRocket= miner.mostLaunchedRockets(k);
+        assertEquals(topkActiveRocket.size(),k);
+        assertEquals(topkActiveRocket , topkRocketTest);
+
+    }
 }
