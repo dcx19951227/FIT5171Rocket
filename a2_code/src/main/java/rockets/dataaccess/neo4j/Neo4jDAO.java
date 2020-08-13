@@ -83,7 +83,13 @@ public class Neo4jDAO implements DAO {
     }
 
     // TODO: need to be tested!
+
+
+
     public <T extends Entity> void delete(T entity) {
+
+
+
         session.delete(entity);
     }
 }
