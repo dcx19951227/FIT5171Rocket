@@ -138,12 +138,49 @@ public class RocketMiner {
      * @param year the year in request
      * @return the list of k launch service providers who has the highest sales revenue.
      */
+
+
     public List<LaunchServiceProvider> highestRevenueLaunchServiceProviders(int k, int year) {
-        return Collections.emptyList();
+        logger.info("find most " + k + "highest revenue among those launch service provider");
+        List<LaunchServiceProvider> topKRevenueList;
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        Map<LaunchServiceProvider, BigDecimal> revenueMap = CountLaunchedRevenueByYear((List)launches,year);
+        Map<LaunchServiceProvider, BigDecimal> sortedRevenueMap = revenueMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        List<LaunchServiceProvider> sortedRevenueList = new ArrayList<> ();
+        sortedRevenueList.addAll(sortedRevenueMap.keySet());
+        topKRevenueList =sortedRevenueList.subList(0,k);
+//        for (LaunchServiceProvider l : sortedRevenueList)
+//        {            System.out.println(l.getName()+" "+l.getCountry());        }
 
-
-
+        return  topKRevenueList;
     }
+
+    /**
+     *
+     * @param items
+     * @param year
+     * @return Count Launch Revenue By Year
+     */
+
+    public static Map<LaunchServiceProvider, BigDecimal> CountLaunchedRevenueByYear(List<Launch> items,int year) {
+        if (items == null || items.size() == 0) return null;
+        Map<LaunchServiceProvider, BigDecimal> map = new HashMap<LaunchServiceProvider, BigDecimal>();
+        for (Launch temp : items) {
+            if(temp.getLaunchDate().getYear()== year ){                      //count the successful launched frequency for each launch service provider
+                BigDecimal price = map.get(temp);
+                map.put(temp.getLaunchServiceProvider(), (price == null) ? temp.getPrice() : temp.getPrice().add(price));
+            }
+        }
+
+//        for (LaunchServiceProvider lsp: map.keySet() ){
+//            System.out.println(lsp.getName());
+//        }
+        return map;
+    }
+    
 }
 
  
