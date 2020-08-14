@@ -110,4 +110,35 @@ public class RocketMinerUnitTest {
         assertEquals(topkActiveRocket , topkRocketTest);
 
     }
+    
+    
+    @ParameterizedTest
+    @MethodSource("revenueParametersProvider")
+    public void shouldReturnhighestRevenueLaunchServiceProviders(int k, int year) {
+        when(dao.loadAll(Launch.class)).thenReturn(launches);
+
+        Map<LaunchServiceProvider, BigDecimal> revenueMap = miner.CountLaunchedRevenueByYear((List)launches,year);
+ 
+
+        Map<LaunchServiceProvider, BigDecimal> sortedRevenueMap = revenueMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        List<LaunchServiceProvider> sortedRevenueList = new ArrayList<> ();
+        sortedRevenueList.addAll(sortedRevenueMap.keySet());
+
+        List<LaunchServiceProvider> topKRevenueList =sortedRevenueList.subList(0,k);
+        for (LaunchServiceProvider l : sortedRevenueList)
+        {
+            System.out.println(l.getName()+" "+l.getCountry());
+        }
+        assertEquals(topKRevenueList , miner.highestRevenueLaunchServiceProviders(k,year));
+
+    }
+
+    static Stream<Arguments> revenueParametersProvider(){
+        return Stream.of(Arguments.of(3,2017),Arguments.of(5, 2017));
+    }
+
+    
 }
