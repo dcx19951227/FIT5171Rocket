@@ -113,7 +113,28 @@ public class RocketMiner {
      * @return the country who sends the most payload to the orbit
      */
     public String dominantCountry(String orbit) {
-        return null;
+        logger.info("find the most launched country in " + orbit);
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        Map<String,Integer> orbitMap = MostLaunchedCountryOfList((List<Launch>)launches,orbit);
+        Map<String, Integer> sortedMap = orbitMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        List<String> countryList = new ArrayList<>();
+        countryList.addAll(sortedMap.keySet());
+        return (String) countryList.toArray()[0];
+    }
+    
+    public static Map<String, Integer> MostLaunchedCountryOfList(List<Launch> items,String orbit) {
+        if (items == null || items.size() == 0) return null;
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        for (Launch temp : items) {
+            if(temp.getOrbit()== orbit){                      //count the amount of launching in one orbit for each countries
+                Integer count = map.get(temp);
+                map.put(temp.getLaunchVehicle().getCountry(), (count == null) ? 1 : count + 1);
+            }
+        }
+        return map;
     }
 
     /**
