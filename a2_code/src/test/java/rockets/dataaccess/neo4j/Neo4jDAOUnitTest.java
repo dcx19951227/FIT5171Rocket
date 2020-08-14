@@ -168,7 +168,7 @@ public class Neo4jDAOUnitTest {
     }
 
     @Test
-    public void shouldDeleteLSP() {
+    public void shouldDeleteLSPSuccessfully() {
         dao.createOrUpdate(spacex);
         dao.createOrUpdate(esa);
         assertNotNull(spacex.getId());
@@ -180,38 +180,39 @@ public class Neo4jDAOUnitTest {
         assertEquals(1, LSPCollection.size());
 
     }
+
 
 
     @Test
     public void shouldDeleteUserSuccessfully() {
-        dao.createOrUpdate(spacex);
-        dao.createOrUpdate(esa);
-        assertNotNull(spacex.getId());
-        assertNotNull(spacex.getId());
+        User user = new User();
+        user.setEmail("111qqq@example.com");
+        user.setPassword("111111");
+        user.setFirstName("first");
+        user.setLastName("last");
+        dao.createOrUpdate(user);
+        assertNotNull(user.getId());
 
-        assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty());
-        dao.delete(spacex);
-        Collection<LaunchServiceProvider> LSPCollection = dao.loadAll(LaunchServiceProvider.class);
-        assertEquals(1, LSPCollection.size());
-
-    }
-
-    @Test
-    public void shouldDeleteUser() {
-        dao.createOrUpdate(spacex);
-        dao.createOrUpdate(esa);
-        assertNotNull(spacex.getId());
-        assertNotNull(spacex.getId());
-
-        assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty());
-        dao.delete(spacex);
-        Collection<LaunchServiceProvider> LSPCollection = dao.loadAll(LaunchServiceProvider.class);
-        assertEquals(1, LSPCollection.size());
+        assertFalse(dao.loadAll(User.class).isEmpty());
+        dao.delete(user);
+        Collection<User> UserCollection = dao.loadAll(User.class);
+        assertEquals(0, UserCollection.size());
 
     }
-
     @Test
-    public void shouldDeleteRocketIfExist() {
+    public void shouldDeleteLaunchSuccessfully() {
+        Launch launch = new Launch();
+        launch.setLaunchDate(LocalDate.of(2017, 1, 1));
+        launch.setLaunchVehicle(rocket);
+        launch.setLaunchSite("VAFB");
+        launch.setOrbit("LEO");
+        dao.createOrUpdate(launch);
+        assertNotNull(launch.getId());
+
+        assertFalse(dao.loadAll(Launch.class).isEmpty());
+        dao.delete(launch);
+        Collection<Launch> LaunchCollection = dao.loadAll(Launch.class);
+        assertEquals(0, LaunchCollection.size());
 
     }
 

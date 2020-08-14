@@ -81,4 +81,6 @@ public class RocketUnitTest {
         Rocket bfr = new Rocket(name, country, manufacturer);
         assertThrows(NullPointerException.class, () -> bfr.setMassToLEO(null));
     }
+
+
 }
