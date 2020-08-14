@@ -53,6 +53,7 @@ public class Neo4jDAO implements DAO {
             filters.add(new Filter("name", EQUALS, rocket.getName()))
                     .and(new Filter("country", EQUALS, rocket.getCountry()));
             collection = session.loadAll(Rocket.class, filters);
+
         } else if (clazz.equals(User.class)) {
             User user = (User) entity;
             filters.add(new Filter("email", EQUALS, user.getEmail()));
@@ -82,12 +83,8 @@ public class Neo4jDAO implements DAO {
         return session.loadAll(clazz);
     }
 
-    // TODO: need to be tested!
-
-
-
-    public <T extends Entity> void delete(T entity) {
-
+    @Override
+     public <T extends Entity> void delete(T entity) {
 
 
         session.delete(entity);

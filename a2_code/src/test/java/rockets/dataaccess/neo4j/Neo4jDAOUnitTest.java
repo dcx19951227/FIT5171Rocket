@@ -167,6 +167,55 @@ public class Neo4jDAOUnitTest {
         assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty());
     }
 
+    @Test
+    public void shouldDeleteLSP() {
+        dao.createOrUpdate(spacex);
+        dao.createOrUpdate(esa);
+        assertNotNull(spacex.getId());
+        assertNotNull(spacex.getId());
+
+        assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty());
+        dao.delete(spacex);
+        Collection<LaunchServiceProvider> LSPCollection = dao.loadAll(LaunchServiceProvider.class);
+        assertEquals(1, LSPCollection.size());
+
+    }
+
+
+    @Test
+    public void shouldDeleteUserSuccessfully() {
+        dao.createOrUpdate(spacex);
+        dao.createOrUpdate(esa);
+        assertNotNull(spacex.getId());
+        assertNotNull(spacex.getId());
+
+        assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty());
+        dao.delete(spacex);
+        Collection<LaunchServiceProvider> LSPCollection = dao.loadAll(LaunchServiceProvider.class);
+        assertEquals(1, LSPCollection.size());
+
+    }
+
+    @Test
+    public void shouldDeleteUser() {
+        dao.createOrUpdate(spacex);
+        dao.createOrUpdate(esa);
+        assertNotNull(spacex.getId());
+        assertNotNull(spacex.getId());
+
+        assertFalse(dao.loadAll(LaunchServiceProvider.class).isEmpty());
+        dao.delete(spacex);
+        Collection<LaunchServiceProvider> LSPCollection = dao.loadAll(LaunchServiceProvider.class);
+        assertEquals(1, LSPCollection.size());
+
+    }
+
+    @Test
+    public void shouldDeleteRocketIfExist() {
+
+    }
+
+
     @AfterEach
     public void tearDown() {
         session.purgeDatabase();

@@ -8,6 +8,7 @@ import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 
 //import java.math.BigDecimal;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,61 +29,54 @@ public class RocketMiner {
      * @param k the number of rockets to be returned.
      * @return the list of k most active rockets.
      */
+
+
     public List<Rocket> mostLaunchedRockets(int k) {
 
         logger.info("find the " + k + "most active rockets");
-        List<Rocket> topkList;
         Collection<Launch> launches = dao.loadAll(Launch.class);
-        Map<Rocket, Integer> launchMap = frequencyOfListElements((List) launches);
+        List<Rocket> RocketList = new ArrayList<>();
 
-        Map<Rocket, Integer> sortedMap = new LinkedHashMap<Rocket, Integer>();
-        List<Map.Entry<Rocket, Integer>> entryList = new ArrayList<Map.Entry<Rocket, Integer>>(launchMap.entrySet());
-        Collections.sort(entryList, new MapValueComparator());
-        Iterator<Map.Entry<Rocket, Integer>> iter = entryList.iterator();
-        Map.Entry<Rocket, Integer> tmpEntry = null;
-        while (iter.hasNext()) {
-            tmpEntry = iter.next();
-            sortedMap.put(tmpEntry.getKey(), tmpEntry.getValue());
+        for(Launch launch :launches){
+            RocketList.add(launch.getLaunchVehicle());
         }
-        List<Rocket> RocketList = (List<Rocket>) sortedMap.keySet();
-        topkList =RocketList.subList(0,k);
+        List<Rocket> topkList= new ArrayList<Rocket>();
 
-//        Comparator<Launch> launchDateComparator = (a, b) -> -a.getLaunchDate().compareTo(b.getLaunchDate());
-//        return launches.stream().sorted(launchDateComparator).limit(k).collect(Collectors.toList());
+        Map<Rocket, Integer> RocketMap =   frequencyOfListElements(RocketList);
 
+        Map<Rocket, Integer> sortedRocketMap = RocketMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
+        List<Rocket> sortedRocketList = new ArrayList<Rocket> ();
+        sortedRocketList.addAll(sortedRocketMap.keySet());
+        topkList= sortedRocketList.subList(0,k);
+
+        for (Rocket r : topkList)
+        {
+            System.out.println(r.getName()+" "+r.getCountry());
+        }
 
         return topkList;
+
+
     }
+
 
     /**
      * java统计List集合中每个元素出现的次数
      */
-    public static Map<String, Integer> frequencyOfListElements(List<String> items) {
-        if (items == null || items.size() == 0) return null;
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        for (String temp : items) {
+    public static Map<Rocket, Integer> frequencyOfListElements(List<Rocket> items) {
+        if (items == null || items.size() == 0)
+        {System.out.println("NULL22");
+            return null;}
+        Map<Rocket, Integer> map = new HashMap<Rocket, Integer>();
+        for (Rocket temp : items) {
             Integer count = map.get(temp);
             map.put(temp, (count == null) ? 1 : count + 1);
         }
         return map;
-    }
-
-    public static Map<String, Integer> sortMapByValue(Map<String, Integer> oriMap) {
-        if (oriMap == null || oriMap.isEmpty()) {
-            return null;
-        }
-
-        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
-        List<Map.Entry<String, Integer>> entryList = new ArrayList<Map.Entry<String, Integer>>(oriMap.entrySet());
-        Collections.sort(entryList, (Comparator<? super Map.Entry<String, Integer>>) new MapValueComparator());
-        Iterator<Map.Entry<String, Integer>> iter = entryList.iterator();
-        Map.Entry<String, Integer> tmpEntry = null;
-        while (iter.hasNext()) {
-            tmpEntry = iter.next();
-            sortedMap.put(tmpEntry.getKey(), tmpEntry.getValue());
-        }
-        return sortedMap;
-
     }
 
 
@@ -147,18 +141,52 @@ public class RocketMiner {
      * @param year the year in request
      * @return the list of k launch service providers who has the highest sales revenue.
      */
+
+
     public List<LaunchServiceProvider> highestRevenueLaunchServiceProviders(int k, int year) {
-        return Collections.emptyList();
+        logger.info("find most " + k + "highest revenue among those launch service provider");
+        List<LaunchServiceProvider> topKRevenueList;
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        Map<LaunchServiceProvider, BigDecimal> revenueMap = CountLaunchedRevenueByYear((List)launches,year);
+        Map<LaunchServiceProvider, BigDecimal> sortedRevenueMap = revenueMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        List<LaunchServiceProvider> sortedRevenueList = new ArrayList<> ();
+        sortedRevenueList.addAll(sortedRevenueMap.keySet());
+        topKRevenueList =sortedRevenueList.subList(0,k);
+//        for (LaunchServiceProvider l : sortedRevenueList)
+//        {            System.out.println(l.getName()+" "+l.getCountry());        }
 
-
-
+        return  topKRevenueList;
     }
+
+    /**
+     *
+     * @param items
+     * @param year
+     * @return
+     */
+
+    public static Map<LaunchServiceProvider, BigDecimal> CountLaunchedRevenueByYear(List<Launch> items,int year) {
+        if (items == null || items.size() == 0) return null;
+        Map<LaunchServiceProvider, BigDecimal> map = new HashMap<LaunchServiceProvider, BigDecimal>();
+        for (Launch temp : items) {
+            if(temp.getLaunchDate().getYear()== year ){                      //count the successful launched frequency for each launch service provider
+                BigDecimal price = map.get(temp);
+                map.put(temp.getLaunchServiceProvider(), (price == null) ? temp.getPrice() : temp.getPrice().add(price));
+            }
+        }
+
+//        for (LaunchServiceProvider lsp: map.keySet() ){
+//            System.out.println(lsp.getName());
+//        }
+        return map;
+    }
+
+
+
 }
 
 
-class MapValueComparator implements Comparator<Map.Entry<Rocket, Integer>> {
-    @Override
-    public int compare(Map.Entry<String, String> me1, Map.Entry<String, String> me2) {
-        return me1.getValue().compareTo(me2.getValue());
-    }
-}
+
